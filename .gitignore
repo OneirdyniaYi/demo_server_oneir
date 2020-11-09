@@ -1,6 +1,6 @@
 *.o
 *.la
 *.a
-*/build
-*/bin
+/build/*
+/bin/*
 
