@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../lib/libdemo_lib.a  CMakeFiles/demo_lib.dir/common/buffer.cc.o CMakeFiles/demo_lib.dir/common/epoll.cc.o CMakeFiles/demo_lib.dir/common/msghead.cc.o CMakeFiles/demo_lib.dir/common/socket.cc.o CMakeFiles/demo_lib.dir/Demo.pb.cc.o CMakeFiles/demo_lib.dir/ProtoID.pb.cc.o
-/usr/bin/ranlib ../lib/libdemo_lib.a

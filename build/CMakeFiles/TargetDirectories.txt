@@ -1,5 +1,0 @@
-/home/yi/demo/build/CMakeFiles/rebuild_cache.dir
-/home/yi/demo/build/CMakeFiles/client.dir
-/home/yi/demo/build/CMakeFiles/server.dir
-/home/yi/demo/build/CMakeFiles/edit_cache.dir
-/home/yi/demo/build/CMakeFiles/demo_lib.dir
