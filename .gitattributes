@@ -1,0 +1,16 @@
+* text=auto
+
+*.png binary -delta
+*.jpeg binary -delta
+*.jpg binary -delta
+*.gif binary -delta
+*.gz binary -delta
+*.bz2 binary -delta
+*.tgz binary -delta
+*.zip binary -delta
+*.rar binary -delta
+*.jar binary -delta
+*.pdf binary -delta
+*.keystore  binary -delta
+*.exe  binary -delta
+*.dll  binary -delta
