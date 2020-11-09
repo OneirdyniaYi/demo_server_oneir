@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+
+
+//REQ_TEST
+message ReqTest {
+  	int32 a = 1;
+}
+
+//RSP_TEST
+message RspTest {
+	int32 b = 1;
+}
+//REP_TEST2
+message ReqTest2 {
+  	int32 aa = 1;
+  	string msg = 2;
+}
+
+//RSP_TEST2
+message RspTest2 {
+	int32 bb = 1;
+	string msg2 = 2;
+}

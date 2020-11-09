@@ -1,0 +1,3 @@
+# Hashes of file build rules.
+1de1a458a1dc152e01afe320cd645376 Demo.pb.h
+18a6813a4557adaa9ebbbe254312a4ce ProtoID.pb.h

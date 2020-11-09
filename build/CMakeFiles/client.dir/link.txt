@@ -1,0 +1,1 @@
+/usr/bin/c++   -rdynamic -O3 -fPIC -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations  -rdynamic CMakeFiles/client.dir/client/main.cc.o CMakeFiles/client.dir/client/client.cc.o  -o ../bin/client  -Wl,-rpath,/usr/local/lib ../lib/libdemo_lib.a /usr/local/lib/libprotobuf.so -lpthread 
