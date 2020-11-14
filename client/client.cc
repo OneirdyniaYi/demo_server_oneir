@@ -143,8 +143,8 @@ void Client::send_msg_req_test2() {
 
 void Client::send_msg_req_test3(std::string &input) {
     ReqTest2 req;
-    req.set_aa(4567890);
-    req.set_msg(input);
+    //req.set_aa(4567890);
+    //req.set_msg(input);
     send_msg(m_playerid, DEMOID::REQ_TEST2, req);
 }
 
@@ -205,7 +205,7 @@ int32_t Client::handle_test(MsgHead &stHead, const char *body, const int32_t len
 int32_t Client::handle_test2(MsgHead &stHead, const char *body, const int32_t len) {
     RspTest2 rsp;
     rsp.ParseFromArray(body, len);
-    printf("client recv msg  rsp.bb:%d , rsq.msg:%s\n",rsp.bb(),rsp.msg2().c_str());
+    //printf("client recv msg  rsp.bb:%d , rsq.msg:%s\n",rsp.bb(),rsp.msg2().c_str());
     return 0;
 }
 

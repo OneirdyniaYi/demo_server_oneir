@@ -105,7 +105,14 @@ int32_t Server::process_packet(const char *pszInCode, const int32_t iInCodeSize,
 
     printf("[network][Server::%s][uplayerid:%d][msg_id:%d]\n", __FUNCTION__, stHead.iPlayerID, stHead.iMsgID);
 
-
+    if(map_players.find(stHead.iPlayerID) == map_players.end()){
+     	PlayerInfo pinfo;
+      	pinfo.fd = socketfd;
+      	pinfo.player = new Player(stHead.iPlayerID);
+  		map_players.insert(std::make_pair(stHead.iPlayerID,pinfo));
+    }else{
+    	map_players[stHead.iPlayerID].fd = socketfd;
+    }
 
     auto func = m_msgHandle->get_func(stHead.iMsgID);
     if(NULL != func){
@@ -121,7 +128,7 @@ int32_t Server::recv_msg(){
 
 	for(int32_t i = 0;i < fd_num; ++i){
 		int32_t socketfd = m_epoll->get_event_fd(i);
-
+		printf("***********************%d\n",socketfd);
 		if(m_mp.find(socketfd) == m_mp.end() || m_mp[socketfd] == nullptr ){
 			printf("[Server::%s] get_server_tcpsocket failed fd:%d\n", __FUNCTION__, socketfd);
 			
@@ -150,14 +157,14 @@ int32_t Server::recv_msg(){
 			else m_mp[accept_fd] = 	peerSocket;
 
 
-    if(map_players.find(stHead.iPlayerID) == map_players.end()){
-     	PlayerInfo pinfo;
-      	pinfo.fd = socketfd;
-      	pinfo.player = new Player(stHead.iPlayerID);
-  		map_players.insert(std::make_pair(stHead.iPlayerID,pinfo));
-    }else{
-    	map_players[stHead.iPlayerID].fd = socketfd;
-    }
+    // if(map_players.find(stHead.iPlayerID) == map_players.end()){
+    //  	PlayerInfo pinfo;
+    //   	pinfo.fd = socketfd;
+    //   	pinfo.player = new Player(stHead.iPlayerID);
+  	// 	map_players.insert(std::make_pair(stHead.iPlayerID,pinfo));
+    // }else{
+    // 	map_players[stHead.iPlayerID].fd = socketfd;
+    // }
 		}else{
 			if(m_mp[socketfd]->freshBuf()){
 				printf("read to buffer error\n");
@@ -201,34 +208,47 @@ void Server::send_msg(int32_t PlayerID, int32_t cmd_id, google::protobuf::Messag
 	printf("send msg  fd:%d    msglen = %d\n",map_players[PlayerID].fd,head.iLens);
 }
 
-void Server::send_all_msg(int32_t cmd_id, google::protobuf::Message &msg){
+void Server::send_all_msg(int32_t cmd_id, const char* body,const int32_t len){
 	static char data[common_buffer_size];
 
-	MsgHead head;
-	head.iMsgID = cmd_id;
-	head.iPlayerID = 0;
-	head.iLens = MESSAGE_HEAD_SIZE + msg.ByteSizeLong();
+	// MsgHead head;
+	// head.iMsgID = cmd_id;
+	// head.iPlayerID = 0;
+	// head.iLens = MESSAGE_HEAD_SIZE + msg.ByteSizeLong();
 
-	int32_t codeLen = 0;
-	head.encode(data,codeLen);
-	msg.SerializePartialToArray(data+codeLen,msg.ByteSizeLong());
-
-		printf("players number is %d\n",(int)map_players.size());
-	for(auto it = map_players.begin();it != map_players.end();it++){
+	//int32_t codeLen = 0;
+	//head.encode(data,codeLen);
+	// msg.SerializePartialToArray(data+codeLen,msg.ByteSizeLong());
+	uint32_t res = htonl(static_cast<uint32_t>(len+12));
+	memcpy(data,&res,sizeof(res));
+	for(int i=0;i<len;i++){
+		data[i+12] = body[i];
+	}
+	
+		//printf("players number is %d\n",(int)m_mp.size());
+	for(auto it = m_mp.begin();it != m_mp.end();it++){
 		printf("111111111111\n");
+		printf("send fd is %d\n",it->first);
+		// if(m_mp.find(it->second.fd)==m_mp.end()){
+		// 	printf("cant find player socket\n");
+		// 	continue;
+		// }
+		// int ret = m_mp[it->second.fd]->writen(data,(size_t)head.iLens);
+		// if(ret){
+		// 	printf("send all msg (id=%d) error ret=%d,errno:%d ,strerror:%s,fd = %d\n",cmd_id,ret,errno, strerror(errno),it->second.fd);
+		// }
+		// printf("send all msg  fd:%d    msglen = %d\n",it->second.fd,head.iLens);
+		if(it->second!=nullptr&&it->first!=m_socket->get_fd()){
+			int ret = it->second->writen(data,(size_t)(len+12));
+			if(ret){
+				printf("send all msg (id=%d) error ret=%d,errno:%d ,strerror:%s,fd = %d\n",cmd_id,ret,errno, strerror(errno),it->first);
+			}
+			printf("send all msg  fd:%d    msglen = %d\n",it->first,len+12);//head.iLens
+		}
 		
-		if(m_mp.find(it->second.fd)==m_mp.end()){
-			printf("cant find player socket\n");
-			continue;
-		}
-		int ret = m_mp[it->second.fd]->writen(data,(size_t)head.iLens);
-		if(ret){
-			printf("send all msg (id=%d) error ret=%d,errno:%d ,strerror:%s,fd = %d\n",cmd_id,ret,errno, strerror(errno),it->second.fd);
-		}
-		printf("send all msg  fd:%d    msglen = %d\n",it->second.fd,head.iLens);
 	}
 
-
+	
 }
 
 

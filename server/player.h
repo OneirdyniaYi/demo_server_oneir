@@ -24,7 +24,7 @@ public:
 private:
 	int32_t m_id;
 	void send_msg(int32_t cmd_id, google::protobuf::Message &msg);
-	void broadcast(int32_t cmd_id, google::protobuf::Message &msg);
+	void broadcast(int32_t cmd_id, const char *body,const int32_t len);
 };
 
 }
