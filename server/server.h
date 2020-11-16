@@ -38,7 +38,7 @@ public:
 
 	void send_msg(int32_t playerID,int32_t cmd_id, google::protobuf::Message &msg);
 
-	void send_all_msg(int32_t cmd_id, const char* body,const int32_t len);
+	void send_all_msg(int32_t cmd_id, google::protobuf::Message &msg);
 
 
 private:

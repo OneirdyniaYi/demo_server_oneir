@@ -1,0 +1,240 @@
+diff --git a/client/client.cc b/client/client.cc
+index 9119230..0075246 100644
+--- a/client/client.cc
++++ b/client/client.cc
+@@ -143,8 +143,8 @@ void Client::send_msg_req_test2() {
+ 
+ void Client::send_msg_req_test3(std::string &input) {
+     ReqTest2 req;
+-    //req.set_aa(4567890);
+-    //req.set_msg(input);
++    req.set_aa(4567890);
++    req.set_msg(input);
+     send_msg(m_playerid, DEMOID::REQ_TEST2, req);
+ }
+ 
+@@ -205,7 +205,7 @@ int32_t Client::handle_test(MsgHead &stHead, const char *body, const int32_t len
+ int32_t Client::handle_test2(MsgHead &stHead, const char *body, const int32_t len) {
+     RspTest2 rsp;
+     rsp.ParseFromArray(body, len);
+-    //printf("client recv msg  rsp.bb:%d , rsq.msg:%s\n",rsp.bb(),rsp.msg2().c_str());
++    printf("client recv msg  rsp.bb:%d , rsq.msg:%s\n",rsp.bb(),rsp.msg2().c_str());
+     return 0;
+ }
+ 
+diff --git a/protosrc/Demo.proto b/protosrc/Demo.proto
+index ec9ea79..b121b30 100644
+--- a/protosrc/Demo.proto
++++ b/protosrc/Demo.proto
+@@ -13,20 +13,12 @@ message RspTest {
+ }
+ //REP_TEST2
+ message ReqTest2 {
+-  	string name = 1;
+-    int32 dir = 2;
+-	int32 x = 3;
+-    int32 y = 4;
+-    int32 z = 5;
+-    string otherinfo = 6;
++  	int32 aa = 1;
++  	string msg = 2;
+ }
+ 
+ //RSP_TEST2
+ message RspTest2 {
+-	string name = 1;
+-    int32 dir = 2;
+-	int32 x = 3;
+-    int32 y = 4;
+-    int32 z = 5;
+-    string otherinfo = 6;
++	int32 bb = 1;
++	string msg2 = 2;
+ }
+diff --git a/server/player.cc b/server/player.cc
+index f74d9c3..f633b91 100644
+--- a/server/player.cc
++++ b/server/player.cc
+@@ -25,14 +25,15 @@ int32_t Player::handle_test(MsgHead &stHead, const char *body, const int32_t len
+ }
+ 
+ int32_t Player::handle_test2(MsgHead &stHead, const char *body, const int32_t len){
+-    //ReqTest2 req;
+-    //req.ParseFromArray(body, len);
+-    //printf("server receive msg :req.name:%s,req.dir:%d,req.x:%d,req.y%d,req.z%d,req.otherinfo%s\n",req.name().c_str(),req.dir(),req.x(),req.y(),req.z(),req.otherinfo().c_str());
+-
+-    // RspTest2 rsp;
+-    // rsp.set_bb(1000);
+-    // rsp.set_msg2(req.msg());
+-    broadcast(DEMOID::RSP_TEST2,body,len);
++    ReqTest2 req;
++    req.ParseFromArray(body, len);
++
++    printf("server receive msg :req.aa:%d,req.msg:%s\n",req.aa(),req.msg().c_str());
++
++    RspTest2 rsp;
++    rsp.set_bb(1000);
++    rsp.set_msg2(req.msg());
++    broadcast(DEMOID::RSP_TEST2, rsp);
+     
+     return Success;
+ }
+@@ -41,8 +42,8 @@ void Player::send_msg(int32_t cmd_id, google::protobuf::Message &msg) {
+     DEMOSERVER.send_msg(get_id(),cmd_id,msg);
+ }
+ 
+-void Player::broadcast(int32_t cmd_id, const char *body,const int32_t len) {
+-    DEMOSERVER.send_all_msg(cmd_id,body,len);
++void Player::broadcast(int32_t cmd_id, google::protobuf::Message &msg) {
++    DEMOSERVER.send_all_msg(cmd_id,msg);
+ }
+ 
+ }
+diff --git a/server/player.h b/server/player.h
+index 2308745..f8c4feb 100644
+--- a/server/player.h
++++ b/server/player.h
+@@ -24,7 +24,7 @@ public:
+ private:
+ 	int32_t m_id;
+ 	void send_msg(int32_t cmd_id, google::protobuf::Message &msg);
+-	void broadcast(int32_t cmd_id, const char *body,const int32_t len);
++	void broadcast(int32_t cmd_id, google::protobuf::Message &msg);
+ };
+ 
+ }
+diff --git a/server/server.cc b/server/server.cc
+index 212221b..b5f1a72 100644
+--- a/server/server.cc
++++ b/server/server.cc
+@@ -105,14 +105,7 @@ int32_t Server::process_packet(const char *pszInCode, const int32_t iInCodeSize,
+ 
+     printf("[network][Server::%s][uplayerid:%d][msg_id:%d]\n", __FUNCTION__, stHead.iPlayerID, stHead.iMsgID);
+ 
+-    if(map_players.find(stHead.iPlayerID) == map_players.end()){
+-     	PlayerInfo pinfo;
+-      	pinfo.fd = socketfd;
+-      	pinfo.player = new Player(stHead.iPlayerID);
+-  		map_players.insert(std::make_pair(stHead.iPlayerID,pinfo));
+-    }else{
+-    	map_players[stHead.iPlayerID].fd = socketfd;
+-    }
++
+ 
+     auto func = m_msgHandle->get_func(stHead.iMsgID);
+     if(NULL != func){
+@@ -128,7 +121,7 @@ int32_t Server::recv_msg(){
+ 
+ 	for(int32_t i = 0;i < fd_num; ++i){
+ 		int32_t socketfd = m_epoll->get_event_fd(i);
+-		printf("***********************%d\n",socketfd);
++
+ 		if(m_mp.find(socketfd) == m_mp.end() || m_mp[socketfd] == nullptr ){
+ 			printf("[Server::%s] get_server_tcpsocket failed fd:%d\n", __FUNCTION__, socketfd);
+ 			
+@@ -157,14 +150,14 @@ int32_t Server::recv_msg(){
+ 			else m_mp[accept_fd] = 	peerSocket;
+ 
+ 
+-    // if(map_players.find(stHead.iPlayerID) == map_players.end()){
+-    //  	PlayerInfo pinfo;
+-    //   	pinfo.fd = socketfd;
+-    //   	pinfo.player = new Player(stHead.iPlayerID);
+-  	// 	map_players.insert(std::make_pair(stHead.iPlayerID,pinfo));
+-    // }else{
+-    // 	map_players[stHead.iPlayerID].fd = socketfd;
+-    // }
++    if(map_players.find(stHead.iPlayerID) == map_players.end()){
++     	PlayerInfo pinfo;
++      	pinfo.fd = socketfd;
++      	pinfo.player = new Player(stHead.iPlayerID);
++  		map_players.insert(std::make_pair(stHead.iPlayerID,pinfo));
++    }else{
++    	map_players[stHead.iPlayerID].fd = socketfd;
++    }
+ 		}else{
+ 			if(m_mp[socketfd]->freshBuf()){
+ 				printf("read to buffer error\n");
+@@ -208,47 +201,34 @@ void Server::send_msg(int32_t PlayerID, int32_t cmd_id, google::protobuf::Messag
+ 	printf("send msg  fd:%d    msglen = %d\n",map_players[PlayerID].fd,head.iLens);
+ }
+ 
+-void Server::send_all_msg(int32_t cmd_id, const char* body,const int32_t len){
++void Server::send_all_msg(int32_t cmd_id, google::protobuf::Message &msg){
+ 	static char data[common_buffer_size];
+ 
+-	// MsgHead head;
+-	// head.iMsgID = cmd_id;
+-	// head.iPlayerID = 0;
+-	// head.iLens = MESSAGE_HEAD_SIZE + msg.ByteSizeLong();
+-
+-	//int32_t codeLen = 0;
+-	//head.encode(data,codeLen);
+-	// msg.SerializePartialToArray(data+codeLen,msg.ByteSizeLong());
+-	uint32_t res = htonl(static_cast<uint32_t>(len+12));
+-	memcpy(data,&res,sizeof(res));
+-	for(int i=0;i<len;i++){
+-		data[i+12] = body[i];
+-	}
+-	
+-		//printf("players number is %d\n",(int)m_mp.size());
+-	for(auto it = m_mp.begin();it != m_mp.end();it++){
++	MsgHead head;
++	head.iMsgID = cmd_id;
++	head.iPlayerID = 0;
++	head.iLens = MESSAGE_HEAD_SIZE + msg.ByteSizeLong();
++
++	int32_t codeLen = 0;
++	head.encode(data,codeLen);
++	msg.SerializePartialToArray(data+codeLen,msg.ByteSizeLong());
++
++		printf("players number is %d\n",(int)map_players.size());
++	for(auto it = map_players.begin();it != map_players.end();it++){
+ 		printf("111111111111\n");
+-		printf("send fd is %d\n",it->first);
+-		// if(m_mp.find(it->second.fd)==m_mp.end()){
+-		// 	printf("cant find player socket\n");
+-		// 	continue;
+-		// }
+-		// int ret = m_mp[it->second.fd]->writen(data,(size_t)head.iLens);
+-		// if(ret){
+-		// 	printf("send all msg (id=%d) error ret=%d,errno:%d ,strerror:%s,fd = %d\n",cmd_id,ret,errno, strerror(errno),it->second.fd);
+-		// }
+-		// printf("send all msg  fd:%d    msglen = %d\n",it->second.fd,head.iLens);
+-		if(it->second!=nullptr&&it->first!=m_socket->get_fd()){
+-			int ret = it->second->writen(data,(size_t)(len+12));
+-			if(ret){
+-				printf("send all msg (id=%d) error ret=%d,errno:%d ,strerror:%s,fd = %d\n",cmd_id,ret,errno, strerror(errno),it->first);
+-			}
+-			printf("send all msg  fd:%d    msglen = %d\n",it->first,len+12);//head.iLens
+-		}
+ 		
++		if(m_mp.find(it->second.fd)==m_mp.end()){
++			printf("cant find player socket\n");
++			continue;
++		}
++		int ret = m_mp[it->second.fd]->writen(data,(size_t)head.iLens);
++		if(ret){
++			printf("send all msg (id=%d) error ret=%d,errno:%d ,strerror:%s,fd = %d\n",cmd_id,ret,errno, strerror(errno),it->second.fd);
++		}
++		printf("send all msg  fd:%d    msglen = %d\n",it->second.fd,head.iLens);
+ 	}
+ 
+-	
++
+ }
+ 
+ 
+diff --git a/server/server.h b/server/server.h
+index ff55934..0d4b652 100644
+--- a/server/server.h
++++ b/server/server.h
+@@ -38,7 +38,7 @@ public:
+ 
+ 	void send_msg(int32_t playerID,int32_t cmd_id, google::protobuf::Message &msg);
+ 
+-	void send_all_msg(int32_t cmd_id, const char* body,const int32_t len);
++	void send_all_msg(int32_t cmd_id, google::protobuf::Message &msg);
+ 
+ 
+ private:

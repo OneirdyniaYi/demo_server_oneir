@@ -208,24 +208,24 @@ void Server::send_msg(int32_t PlayerID, int32_t cmd_id, google::protobuf::Messag
 	printf("send msg  fd:%d    msglen = %d\n",map_players[PlayerID].fd,head.iLens);
 }
 
-void Server::send_all_msg(int32_t cmd_id, const char* body,const int32_t len){
+void Server::send_all_msg(int32_t cmd_id, google::protobuf::Message &msg){
 	static char data[common_buffer_size];
 
-	// MsgHead head;
-	// head.iMsgID = cmd_id;
-	// head.iPlayerID = 0;
-	// head.iLens = MESSAGE_HEAD_SIZE + msg.ByteSizeLong();
+	MsgHead head;
+	head.iMsgID = cmd_id;
+	head.iPlayerID = 0;
+	head.iLens = MESSAGE_HEAD_SIZE + msg.ByteSizeLong();
 
-	//int32_t codeLen = 0;
-	//head.encode(data,codeLen);
-	// msg.SerializePartialToArray(data+codeLen,msg.ByteSizeLong());
-	uint32_t res = htonl(static_cast<uint32_t>(len+12));
-	memcpy(data,&res,sizeof(res));
-	for(int i=0;i<len;i++){
-		data[i+12] = body[i];
-	}
+	int32_t codeLen = 0;
+	head.encode(data,codeLen);
+	msg.SerializePartialToArray(data+codeLen,msg.ByteSizeLong());
+	//uint32_t res = htonl(static_cast<uint32_t>(len+12));
+	// memcpy(data,&res,sizeof(res));
+	// for(int i=0;i<len;i++){
+	// 	data[i+12] = body[i];
+	// }
 	
-		//printf("players number is %d\n",(int)m_mp.size());
+		printf("players number is %d\n",(int)m_mp.size());
 	for(auto it = m_mp.begin();it != m_mp.end();it++){
 		printf("111111111111\n");
 		printf("send fd is %d\n",it->first);
@@ -239,11 +239,11 @@ void Server::send_all_msg(int32_t cmd_id, const char* body,const int32_t len){
 		// }
 		// printf("send all msg  fd:%d    msglen = %d\n",it->second.fd,head.iLens);
 		if(it->second!=nullptr&&it->first!=m_socket->get_fd()){
-			int ret = it->second->writen(data,(size_t)(len+12));
+			int ret = it->second->writen(data,head.iLens);
 			if(ret){
 				printf("send all msg (id=%d) error ret=%d,errno:%d ,strerror:%s,fd = %d\n",cmd_id,ret,errno, strerror(errno),it->first);
 			}
-			printf("send all msg  fd:%d    msglen = %d\n",it->first,len+12);//head.iLens
+			printf("send all msg  fd:%d    msglen = %d\n",it->first,head.iLens);//head.iLens
 		}
 		
 	}
