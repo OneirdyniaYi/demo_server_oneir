@@ -21,8 +21,13 @@ public:
 
 	int32_t handle_test(MsgHead &stHead, const char *body, const int32_t len);
 	int32_t handle_test2(MsgHead &stHead, const char *body, const int32_t len);
+
+	int32_t move_test(MsgHead &head,const char* body,const int32_t len);
 private:
 	int32_t m_id;
+	float m_dir[3] = {};
+	float m_face[3] = {};
+	float m_run[3] = {0,3,5};
 	void send_msg(int32_t cmd_id, google::protobuf::Message &msg);
 	void broadcast(int32_t cmd_id, google::protobuf::Message &msg);
 };

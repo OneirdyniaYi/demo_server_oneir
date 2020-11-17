@@ -30,3 +30,22 @@ message RspTest2 {
     int32 z = 5;
     string otherinfo = 6;
 }
+
+message MoveReq{
+    string name = 1;
+    float dirx = 2;
+    float diry = 3;
+    float dirz = 4;
+    int32 step = 5;
+}
+
+message MoveRsp{
+    string name = 1;
+    float dirx = 2;
+    float diry = 3;
+    float dirz = 4;
+    float facex = 5;
+    float facey = 6;
+    float facez = 7;
+    int32 step = 8;
+}

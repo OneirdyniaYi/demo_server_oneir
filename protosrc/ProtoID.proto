@@ -7,4 +7,6 @@ enum DEMOID
     RSP_TEST               =   1000001;
     REQ_TEST2              =   1000002;
     RSP_TEST2              =   1000003;
+    MoveReq                =   1000004;
+    MoveRsp                =   1000005;
 }

@@ -36,6 +36,24 @@ int32_t Player::handle_test2(MsgHead &stHead, const char *body, const int32_t le
     
     return Success;
 }
+int32_t Player::move_test(MsgHead &head,const char* body,const int32_t len){
+    MoveReq req;
+    req.ParseFromArray(body,len);
+    int flag = 0;
+    int step = req.step();
+    MoveRsp rsp;
+    rsp.set_name(req.name());
+    rsp.set_facex(req.facex());
+    rsp.set_facey(req.facey());
+    rsp.set_facez(req.facez());
+    if(step>2||step<0){ 
+        flag = 1;
+        rsp.set_step(0);
+    }else rsp.set_step(step);
+    rsp.set_dirx();
+    if(flag) send_msg(DEMOID::ERROR,rsp);
+    else broadcast(DEMOID::MoveRsp,rsp);
+}
 
 void Player::send_msg(int32_t cmd_id, google::protobuf::Message &msg) {
     DEMOSERVER.send_msg(get_id(),cmd_id,msg);
