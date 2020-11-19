@@ -90,7 +90,7 @@ int32_t Buffer::getOnePacket(char* data,size_t &size){
 		}
 		return ReAgain;
 	}
-	int32_t code_size = (int32_t) ntohl((uint32_t) (*(int32_t*)m_bufptr+m_head));//解析长度
+	int32_t code_size = (int32_t) ntohl((uint32_t) (*(int32_t*)(m_bufptr+m_head)));//解析长度
 
 	printf("code size is %d\n",code_size);
 	if(code_size <= 0) return ReAgain;

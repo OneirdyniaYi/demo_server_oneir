@@ -3,10 +3,13 @@ syntax = "proto3";
 enum DEMOID
 {
     START = 0;
+    ERROR = 1;
     REQ_TEST               =   1000000;
     RSP_TEST               =   1000001;
     REQ_TEST2              =   1000002;
     RSP_TEST2              =   1000003;
-    MoveReq                =   1000004;
-    MoveRsp                =   1000005;
+    MOVEREQ                =   1000004;
+    MOVERSP                =   1000005;
+    STARTREQ               =   1000006;
+    INITPOS                =   1000007;
 }

@@ -61,8 +61,6 @@ int32_t MsgHead::decode(char* target,const int32_t inLens){
 	if(codelen > inLens) return Failed;
 
 	return Success;
-
-
 }
 
 

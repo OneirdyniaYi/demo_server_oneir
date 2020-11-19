@@ -104,20 +104,31 @@ int32_t Server::process_packet(const char *pszInCode, const int32_t iInCodeSize,
     int32_t iBodySize = stHead.iLens - head_outLength;
 
     printf("[network][Server::%s][uplayerid:%d][msg_id:%d]\n", __FUNCTION__, stHead.iPlayerID, stHead.iMsgID);
-
-    if(map_players.find(stHead.iPlayerID) == map_players.end()){
-     	PlayerInfo pinfo;
-      	pinfo.fd = socketfd;
-      	pinfo.player = new Player(stHead.iPlayerID);
-  		map_players.insert(std::make_pair(stHead.iPlayerID,pinfo));
-    }else{
-    	map_players[stHead.iPlayerID].fd = socketfd;
-    }
-
-    auto func = m_msgHandle->get_func(stHead.iMsgID);
-    if(NULL != func){
-        (map_players[stHead.iPlayerID].player->*func)(stHead,pszInCode + head_outLength,iBodySize);
-    }
+	if(stHead.iPlayerID==0){
+		stHead.iPlayerID = curplayerid++;
+		Player *pp = new Player(stHead.iPlayerID);
+		auto func = m_msgHandle->get_func(stHead.iMsgID);
+		printf("register function success\n");
+		if(NULL != func){
+			(pp->*func)(stHead,pszInCode + head_outLength,iBodySize);
+			printf("function proccess success\n");
+		}
+		delete pp;
+	}else{
+		if(map_players.find(stHead.iPlayerID) == map_players.end()){
+			PlayerInfo pinfo;
+			pinfo.fd = socketfd;
+			pinfo.player = new Player(stHead.iPlayerID);
+			map_players.insert(std::make_pair(stHead.iPlayerID,pinfo));
+		}else{
+			if(map_players[stHead.iPlayerID].fd != socketfd)
+				map_players[stHead.iPlayerID].fd = socketfd;
+		}
+		auto func = m_msgHandle->get_func(stHead.iMsgID);
+		if(NULL != func){
+			(map_players[stHead.iPlayerID].player->*func)(stHead,pszInCode + head_outLength,iBodySize);
+		}
+	}
     return Success;
 }
 
@@ -208,24 +219,17 @@ void Server::send_msg(int32_t PlayerID, int32_t cmd_id, google::protobuf::Messag
 	printf("send msg  fd:%d    msglen = %d\n",map_players[PlayerID].fd,head.iLens);
 }
 
-void Server::send_all_msg(int32_t cmd_id, google::protobuf::Message &msg){
+void Server::send_fd_msg(int32_t PlayerID, int32_t cmd_id, google::protobuf::Message &msg){
 	static char data[common_buffer_size];
 
 	MsgHead head;
 	head.iMsgID = cmd_id;
-	head.iPlayerID = 0;
+	head.iPlayerID = PlayerID;
 	head.iLens = MESSAGE_HEAD_SIZE + msg.ByteSizeLong();
 
 	int32_t codeLen = 0;
 	head.encode(data,codeLen);
 	msg.SerializePartialToArray(data+codeLen,msg.ByteSizeLong());
-	//uint32_t res = htonl(static_cast<uint32_t>(len+12));
-	// memcpy(data,&res,sizeof(res));
-	// for(int i=0;i<len;i++){
-	// 	data[i+12] = body[i];
-	// }
-	
-		printf("players number is %d\n",(int)m_mp.size());
 	for(auto it = m_mp.begin();it != m_mp.end();it++){
 		printf("111111111111\n");
 		printf("send fd is %d\n",it->first);
@@ -237,7 +241,7 @@ void Server::send_all_msg(int32_t cmd_id, google::protobuf::Message &msg){
 		// if(ret){
 		// 	printf("send all msg (id=%d) error ret=%d,errno:%d ,strerror:%s,fd = %d\n",cmd_id,ret,errno, strerror(errno),it->second.fd);
 		// }
-		// printf("send all msg  fd:%d    msglen = %d\n",it->second.fd,head.iLens);
+		printf("send all msg  fd:%d    msglen = %d\n",it->first,head.iLens);
 		if(it->second!=nullptr&&it->first!=m_socket->get_fd()){
 			int ret = it->second->writen(data,head.iLens);
 			if(ret){
@@ -247,15 +251,88 @@ void Server::send_all_msg(int32_t cmd_id, google::protobuf::Message &msg){
 		}
 		
 	}
+}
 
+void Server::send_all_msg(int32_t PlayerID,int32_t cmd_id, google::protobuf::Message &msg){
+	static char data[common_buffer_size];
+
+	MsgHead head;
+	head.iMsgID = cmd_id;
+	head.iPlayerID = PlayerID;
+	head.iLens = MESSAGE_HEAD_SIZE + msg.ByteSizeLong();
+
+	int32_t codeLen = 0;
+	head.encode(data,codeLen);
+	msg.SerializePartialToArray(data+codeLen,msg.ByteSizeLong());
 	
+		printf("players number is %d\n",(int)m_mp.size());
+	for(auto it = map_players.begin();it != map_players.end();it++){
+		printf("111111111111\n");
+		printf("send fd is %d\n",it->second.fd);
+
+		if(m_mp.find(it->second.fd)==m_mp.end()){
+			printf("cant find player socket\n");
+			continue;
+		}
+		int ret = m_mp[it->second.fd]->writen(data,(size_t)head.iLens);
+		if(ret){
+			printf("send all msg (id=%d) error ret=%d,errno:%d ,strerror:%s,fd = %d\n",cmd_id,ret,errno, strerror(errno),it->second.fd);
+		}
+		printf("send all msg  fd:%d    msglen = %d\n",it->second.fd,head.iLens);
+		// if(it->second!=nullptr&&it->first!=m_socket->get_fd()){
+		// 	int ret = it->second->writen(data,head.iLens);
+		// 	if(ret){
+		// 		printf("send all msg (id=%d) error ret=%d,errno:%d ,strerror:%s,fd = %d\n",cmd_id,ret,errno, strerror(errno),it->first);
+		// 	}
+		// 	printf("send all msg  fd:%d    msglen = %d\n",it->first,head.iLens);//head.iLens
+		// }
+		
+	}
+}
+
+void Server::send_except_msg(int32_t PlayerID,int32_t cmd_id, google::protobuf::Message &msg){
+	static char data[common_buffer_size];
+
+	MsgHead head;
+	head.iMsgID = cmd_id;
+	head.iPlayerID = PlayerID;
+	head.iLens = MESSAGE_HEAD_SIZE + msg.ByteSizeLong();
+
+	int32_t codeLen = 0;
+	head.encode(data,codeLen);
+	msg.SerializePartialToArray(data+codeLen,msg.ByteSizeLong());
+	
+		printf("players number is %d\n",(int)m_mp.size());
+	for(auto it = map_players.begin();it != map_players.end();it++){
+		printf("111111111111\n");
+		printf("send fd is %d\n",it->second.fd);
+		if(it->first==PlayerID) continue;
+		if(m_mp.find(it->second.fd)==m_mp.end()){
+			printf("cant find player socket\n");
+			continue;
+		}
+		int ret = m_mp[it->second.fd]->writen(data,(size_t)head.iLens);
+		if(ret){
+			printf("send all msg (id=%d) error ret=%d,errno:%d ,strerror:%s,fd = %d\n",cmd_id,ret,errno, strerror(errno),it->second.fd);
+		}
+		printf("send all msg  fd:%d    msglen = %d\n",it->second.fd,head.iLens);
+		// if(it->second!=nullptr&&it->first!=m_socket->get_fd()){
+		// 	int ret = it->second->writen(data,head.iLens);
+		// 	if(ret){
+		// 		printf("send all msg (id=%d) error ret=%d,errno:%d ,strerror:%s,fd = %d\n",cmd_id,ret,errno, strerror(errno),it->first);
+		// 	}
+		// 	printf("send all msg  fd:%d    msglen = %d\n",it->first,head.iLens);//head.iLens
+		// }
+		
+	}
 }
 
 
 void Server::register_all_msg(){
     m_msgHandle->RegisterMsg(DEMOID::REQ_TEST, &Player::handle_test);
     m_msgHandle->RegisterMsg(DEMOID::REQ_TEST2, &Player::handle_test2);
-
+	m_msgHandle->RegisterMsg(DEMOID::MOVEREQ, &Player::move_test);
+	m_msgHandle->RegisterMsg(DEMOID::STARTREQ, &Player::regis_test);
 }
 
 }

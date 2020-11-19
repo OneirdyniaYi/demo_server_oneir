@@ -36,10 +36,13 @@ public:
 
 	void work();
 
+	void send_fd_msg(int32_t playerID,int32_t cmd_id, google::protobuf::Message &msg);
+
 	void send_msg(int32_t playerID,int32_t cmd_id, google::protobuf::Message &msg);
 
-	void send_all_msg(int32_t cmd_id, google::protobuf::Message &msg);
+	void send_all_msg(int32_t playerID,int32_t cmd_id, google::protobuf::Message &msg);
 
+	void send_except_msg(int32_t PlayerID,int32_t cmd_id, google::protobuf::Message &msg);
 
 private:
 	Socket* m_socket;
@@ -59,6 +62,8 @@ private:
 	void register_all_msg();
 
 	int32_t process_packet(const char *pszInCode, const int32_t iInCodeSize, int32_t socketfd);
+
+	uint32_t curplayerid = 1;
 };
 #define DEMOSERVER Singleton<Server>::Instance()
 

@@ -33,19 +33,27 @@ message RspTest2 {
 
 message MoveReq{
     string name = 1;
-    float dirx = 2;
-    float diry = 3;
-    float dirz = 4;
-    int32 step = 5;
+    int32 facex = 2;
+    int32 facey = 3;
+    int32 facez = 4;
+    int32 src_dirx = 5;
+    int32 src_diry = 6;
+    int32 src_dirz = 7;
+    int32 trg_dirx = 8;
+    int32 trg_diry = 9;
+    int32 trg_dirz = 10;
+    int32 speed = 11;
+    int64 time = 12;
 }
 
 message MoveRsp{
     string name = 1;
-    float dirx = 2;
-    float diry = 3;
-    float dirz = 4;
-    float facex = 5;
-    float facey = 6;
-    float facez = 7;
+    int32 dirx = 2;
+    int32 diry = 3;
+    int32 dirz = 4;
+    int32 facex = 5;
+    int32 facey = 6;
+    int32 facez = 7;
     int32 step = 8;
+    int64 time = 9;
 }
