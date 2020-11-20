@@ -46,22 +46,31 @@ int32_t Player::move_test(MsgHead &head,const char* body,const int32_t len){
     req.ParseFromArray(body,len);
     //if();
     uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    uint64_t serdlt = m_sertime - now;
+    uint64_t serdlt = now - m_sertime;
+    printf("m_sertime = %lu,now = %lu\n",m_sertime,now);
     m_sertime = now;
-    if(serdlt>100){
+    if(serdlt>119){
         m_dir[0] = m_tar_dir[0];
         m_dir[1] = m_tar_dir[1];
         m_dir[2] = m_tar_dir[2];
         m_run = 0;
-        m_sertime += 100;
+        //m_sertime += 100;
+        printf("yi jing guo le 100 hao miao\n");
     }
+    printf("zhe shi m_dirx:%d,zhe shi req.src_dirx%d\n",m_dir[0],req.src_dirx());
+    printf("zhe shi m_diry:%d,zhe shi req.src_diry%d\n",m_dir[1],req.src_diry());
+    printf("zhe shi m_dirz:%d,zhe shi req.src_dirz%d\n",m_dir[2],req.src_dirz());
+    ////todo    time 0-999999
     int64_t dlt_time = req.time() - m_clitime;
+    printf("zhe shi last m_clitime:%ld,zhe shi req.time%ld\n",m_clitime,req.time());
     int32_t pri_x = m_dir[0] + dlt_time * 0.2 * m_run * m_face[0];
+    printf("zhe shi pri_x:%d,zhe shi m_face[0]%d,zhe shi m_run:%d\n",pri_x,m_face[0],m_run);
     int32_t pri_y = m_dir[1] + dlt_time * 0.2 * m_run * m_face[1];
     int32_t pri_z = m_dir[2] + dlt_time * 0.2 * m_run * m_face[2];
     int32_t dir = (req.src_dirx() - pri_x) * (req.src_dirx() - pri_x) + (req.src_diry() - pri_y) * (req.src_diry() - pri_y) + (req.src_dirz() - pri_z) * (req.src_dirz() - pri_z);
-    if(dir>2){
+    if(dir>1000){
         //todo lahui wanjia
+        printf("wu cha guo da yi tiao hui\n");
         req.set_src_dirx(m_dir[0]);
         req.set_src_diry(m_dir[1]);
         req.set_src_dirz(m_dir[2]);
@@ -73,19 +82,23 @@ int32_t Player::move_test(MsgHead &head,const char* body,const int32_t len){
         req.set_trg_dirx(m_tar_dir[0]);
         req.set_trg_diry(m_tar_dir[1]);
         req.set_trg_dirz(m_tar_dir[2]);
-        send_msg(DEMOID::MOVEREQ,rsp);
+        send_msg(DEMOID::MOVEREQ,req);
         return Success;
     }
     m_clitime = req.time();
     int32_t num = serdlt - dlt_time*20;
+    printf("server client interval is num:%d\n",num);
     if(num>0){
         m_dir[0] = pri_x + req.facex()*req.speed()*num/20;
         m_dir[1] = pri_y + req.facey()*req.speed()*num/20;
         m_dir[2] = pri_z + req.facez()*req.speed()*num/20;
     }else{
-        m_dir[0] = req.src_dirx();
-        m_dir[1] = req.src_diry();
-        m_dir[2] = req.src_dirz();
+    m_dir[0] = req.src_dirx();
+    m_dir[1] = req.src_diry();
+    m_dir[2] = req.src_dirz();
+    m_tar_dir[0] = req.trg_dirx();
+    m_tar_dir[1] = req.trg_diry();
+    m_tar_dir[2] = req.trg_dirz();
     }
     m_face[0] = req.facex();
     m_face[1] = req.facey();
@@ -116,6 +129,7 @@ int32_t Player::regis_test(MsgHead &head,const char* body,const int32_t len){
     m_dir[0] = u(e)+(int32_t)(u(e)/10);
     m_dir[1] = 0;
     m_dir[2] = u(e)+(int32_t)(u(e)/10);
+    printf("chu shi x,z:%d,%d\n",m_dir[0],m_dir[2]);
     m_tar_dir[0] = m_dir[0];
     m_tar_dir[1] = m_dir[1];
     m_tar_dir[2] = m_dir[2]; 

@@ -14,6 +14,7 @@ enum EComm
 	QueueFull = 4,                
 	SystemCallErr = 5,                
 	ReAgain = 6,
+	FdClose = 7,
 
 };
 #endif

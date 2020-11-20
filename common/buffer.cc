@@ -62,7 +62,7 @@ int32_t Buffer::recvbufWrite(int32_t sockfd){
             m_tail += nread;
         }else if(nread == 0){
             ::close(sockfd);
-            return Success;
+            return FdClose;
         }else if(EAGAIN != errno){//received_byte < 0 && EAGAIN != errno
             ::close(sockfd);
             return Failed;

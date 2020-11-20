@@ -105,15 +105,23 @@ int32_t Server::process_packet(const char *pszInCode, const int32_t iInCodeSize,
 
     printf("[network][Server::%s][uplayerid:%d][msg_id:%d]\n", __FUNCTION__, stHead.iPlayerID, stHead.iMsgID);
 	if(stHead.iPlayerID==0){
-		stHead.iPlayerID = curplayerid++;
-		Player *pp = new Player(stHead.iPlayerID);
-		auto func = m_msgHandle->get_func(stHead.iMsgID);
-		printf("register function success\n");
-		if(NULL != func){
-			(pp->*func)(stHead,pszInCode + head_outLength,iBodySize);
-			printf("function proccess success\n");
+		if(stHead.iMsgID==DEMOID::STARTREQ){
+			stHead.iPlayerID = curplayerid++;
+			if(map_players.find(stHead.iPlayerID) == map_players.end()){
+				PlayerInfo pinfo;
+				pinfo.fd = socketfd;
+				pinfo.player = new Player(stHead.iPlayerID);
+				map_players.insert(std::make_pair(stHead.iPlayerID,pinfo));
+			}else{
+				if(map_players[stHead.iPlayerID].fd != socketfd)
+					map_players[stHead.iPlayerID].fd = socketfd;
+			}
+			auto func = m_msgHandle->get_func(stHead.iMsgID);
+			if(NULL != func){
+				(map_players[stHead.iPlayerID].player->*func)(stHead,pszInCode + head_outLength,iBodySize);
+			}
 		}
-		delete pp;
+		return Failed;
 	}else{
 		if(map_players.find(stHead.iPlayerID) == map_players.end()){
 			PlayerInfo pinfo;
@@ -177,7 +185,16 @@ int32_t Server::recv_msg(){
     // 	map_players[stHead.iPlayerID].fd = socketfd;
     // }
 		}else{
-			if(m_mp[socketfd]->freshBuf()){
+			int32_t ret = m_mp[socketfd]->freshBuf();
+			if(ret==FdClose){
+				for(auto it = map_players.begin();it!=map_players.end();it++){
+					if(it->second.fd==socketfd){
+						delete it->second.player;
+						map_players.erase(it);
+						break;
+					}
+				}
+			}else if(ret){
 				printf("read to buffer error\n");
 				return Failed;
 			}
