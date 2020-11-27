@@ -10,6 +10,18 @@ if(Protobuf_FOUND)
     include_directories(${Protobuf_INCLUDE_DIRS})
 endif()
 
+find_path(HIREDIS_HEADER hiredis)
+target_include_directories(redislib PUBLIC ${HIREDIS_HEADER})
+
+find_library(HIREDIS_LIB hiredis)
+target_link_libraries(redislib ${HIREDIS_LIB})
+
+find_path(REDIS_PLUS_PLUS_HEADER sw)
+target_include_directories(redislib PUBLIC ${REDIS_PLUS_PLUS_HEADER})
+
+find_library(REDIS_PLUS_PLUS_LIB redis++)
+target_link_libraries(redislib ${REDIS_PLUS_PLUS_LIB})
+
 include_directories(.)
 include_directories(${PROJECT_SOURCE_DIR}/common
 		    ${PROJECT_SOURCE_DIR}/build)
@@ -30,13 +42,16 @@ add_library(demo_lib ${LIB_SRC} ${PROTOLIB})
 #SET_TARGET_PROPERTIES (Hook_static PROPERTIES OUTPUT_NAME "Hook_lib")
 
 set(SERVER_LIB
-	server/server.cc 
+	server/item.cc
+	server/backpack.cc
 	server/player.cc
+	server/server.cc
+
 )
 
 
 add_executable(server server/main.cc ${SERVER_LIB})
-target_link_libraries(server demo_lib ${Protobuf_LIBRARIES})
+target_link_libraries(server demo_lib redislib ${Protobuf_LIBRARIES})
 
 set(CLIENT_LIB 
 	client/client.cc

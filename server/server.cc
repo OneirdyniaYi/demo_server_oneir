@@ -270,6 +270,7 @@ void Server::send_fd_msg(int32_t PlayerID, int32_t cmd_id, google::protobuf::Mes
 	}
 }
 
+
 void Server::send_all_msg(int32_t PlayerID,int32_t cmd_id, google::protobuf::Message &msg){
 	static char data[common_buffer_size];
 
@@ -350,6 +351,7 @@ void Server::register_all_msg(){
     m_msgHandle->RegisterMsg(DEMOID::REQ_TEST2, &Player::handle_test2);
 	m_msgHandle->RegisterMsg(DEMOID::MOVEREQ, &Player::move_test);
 	m_msgHandle->RegisterMsg(DEMOID::STARTREQ, &Player::regis_test);
+	m_msgHandle->RegisterMsg(DEMOID::ITEMOPERAREQ, &Player::item_test);
 }
 
 }

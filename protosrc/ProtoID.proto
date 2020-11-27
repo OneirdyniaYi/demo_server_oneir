@@ -12,4 +12,6 @@ enum DEMOID
     MOVERSP                =   1000005;
     STARTREQ               =   1000006;
     INITPOS                =   1000007;
+    ITEMOPERAREQ           =   1000008;
+    ITEMOPERARSP           =   1000009;
 }

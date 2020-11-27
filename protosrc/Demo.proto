@@ -57,3 +57,22 @@ message MoveRsp{
     int32 step = 8;
     int64 time = 9;
 }
+
+message Itemproto{
+    uint32 itemid = 1;
+    int32 biid = 2;
+    int32 itemnum = 3;
+    string otherinfo = 4;
+}
+
+message ItemOperaReq{
+    int32 type = 1;    //0 add 1 del 2 trade 3 change
+    int32 tradeid = 2;
+    int32 tarbiid = 3;
+    repeated Itemproto items = 4; 
+}
+
+message ItemOperaRsp{
+    bool issuc = 1;
+    int32 errorcode = 2;
+}

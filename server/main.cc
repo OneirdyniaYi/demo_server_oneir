@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <map>
 
+#include "redisplus.h"
 #include "server.h"
 using namespace demo;
 
@@ -17,6 +18,8 @@ int main(int argc, char** argv){
     	p = argv[1];
 	q = argv[2];
     }
+    REDIS.init("127.0.0.1",6379,200,0);
+    
     if(!DEMOSERVER.init(p,q)){
         DEMOSERVER.work();
     }

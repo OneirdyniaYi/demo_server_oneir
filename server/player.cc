@@ -3,6 +3,7 @@
 #include <random>
 #include <chrono>
 
+
 #include "player.h"
 #include "server.h"
 
@@ -10,6 +11,7 @@ namespace demo{
 
 Player::Player(int32_t playerID):m_id(playerID),m_clitime(0){
 	m_sertime = get_time();
+    m_bag = new Backpack();
 }
 
 Player::~Player(){
@@ -144,6 +146,76 @@ int32_t Player::regis_test(MsgHead &head,const char* body,const int32_t len){
     rsp.set_dirz(m_dir[2]);
     DEMOSERVER.send_fd_msg(get_id(),DEMOID::INITPOS,rsp);
 
+    return Success;
+}
+
+int32_t Player::item_test(MsgHead &head,const char* body,const int32_t len){
+    printf("test item operation\n");
+    ItemOperaReq req;
+    ItemOperaRsp rsp;
+    req.ParseFromArray(body,len);
+    int32_t size = req.items_size();
+    switch(req.type()){
+        case 0:{
+            //do something
+            for (int32_t i = 0; i < size; i++)
+            {
+                Itemproto itemp = req.items(i); /* code */
+                m_bag->add_item(itemp.itemid(),itemp.itemnum());
+                
+                rsp.set_issuc(true);
+                REDIS.redisptr->
+                send_msg(DEMOID::ITEMOPERARSP,rsp);
+            }
+            
+            break;
+        }
+        case 1:{
+            for (int32_t i = 0; i < size; i++)
+            {
+                Itemproto itemp = req.items(i); /* code */
+                //auto it = ITEMFAC.create(itemp.itemid,itemp.itemnum);
+                m_bag->del_item(itemp.biid(),itemp.itemnum());
+                printf("delete item biid:%d,number:%d success!!\n",itemp.biid(),itemp.itemnum());
+                rsp.set_issuc(true);
+                send_msg(DEMOID::ITEMOPERARSP,rsp);
+            }
+            break;
+        }
+        case 2:{
+            // for (int32_t i = 0; i < size; i++)
+            // {
+            //     Itemproto itemp = req.ii(i); /* code */
+            //     auto it = ITEMFAC.create(itemp.itemid(),itemp.itemnum());
+            //     m_bag->add_item(it);
+            //     printf("add item id:%u,breif:%s success!!\n",it->get_itemCount(),it->get_itemBrief().c_str());
+            // }
+            printf("trade to do ...\n");
+            break;
+        }
+        case 3:{
+            for (int32_t i = 0; i < size; i++)
+            {
+                Itemproto itemp = req.items(i); /* code */
+                m_bag->change_item(itemp.biid(),req.tarbiid());
+                printf("change item src_id:%d,tar_id:%d success!!\n",itemp.biid(),req.tarbiid());
+                rsp.set_issuc(true);
+                send_msg(DEMOID::ITEMOPERARSP,rsp);
+            }
+            break;
+        }
+        default:{
+            printf("this protobuf type parser failed!!!\n");
+            rsp.set_issuc(false);
+            rsp.set_errorcode(1);
+            send_msg(DEMOID::ITEMOPERARSP,rsp);
+            return Failed;
+            break;
+        }
+        
+    };
+
+    
     return Success;
 }
 
