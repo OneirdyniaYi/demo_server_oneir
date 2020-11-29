@@ -5,7 +5,6 @@
 #include <string>
 #include <memory>
 #include <sw/redis++/redis++.h>
-using namespace sw::redis;
 
 namespace demo
 {
@@ -14,7 +13,7 @@ public:
     Redisplus();
     ~Redisplus();
     
-    std::shared_ptr<Redis> redisptr;
+    std::shared_ptr<sw::redis::Redis> redisptr;
     void init(std::string ip,uint16_t port,int32_t timeout,int32_t db_th);
 private:
     

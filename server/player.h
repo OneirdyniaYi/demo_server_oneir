@@ -11,6 +11,7 @@
 #include "msghandle.h"
 #include "errorcode.h"
 #include "backpack.h"
+#include "mysqlplus.h"
 
 #define serverinternal 0.02
 
@@ -27,7 +28,8 @@ public:
 
 	int32_t move_test(MsgHead &head,const char* body,const int32_t len);
 	int32_t regis_test(MsgHead &head,const char* body,const int32_t len);
-
+	int32_t regis_test1(MsgHead &head,const char* body,const int32_t len);
+	int32_t login_test(MsgHead &head,const char* body,const int32_t len);
 	int32_t item_test(MsgHead &head,const char* body,const int32_t len);
 
 	uint64_t get_time(){
@@ -43,6 +45,7 @@ private:
 	uint64_t m_sertime;
 
 	Backpack *m_bag;
+	Backpack *m_battle_bag;
 
 	void send_msg(int32_t cmd_id, google::protobuf::Message &msg);
 	void broadcast(int32_t cmd_id, google::protobuf::Message &msg);

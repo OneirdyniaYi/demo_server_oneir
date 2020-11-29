@@ -15,17 +15,18 @@ class Backpack
 {
 private:
     /* data */
-    std::map<int32_t,std::shared_ptr<AbstractItem>> m_backpack;
-    int32_t m_biid;
-    std::map<uint32_t,std::vector<int32_t>> m_idmap;
+    std::map<uint32_t,std::shared_ptr<AbstractItem>> m_backpack;
+    std::map<uint32_t,std::vector<uint32_t>> m_idmap;
 public:
-    Backpack(/* args */):m_biid(0){}
-    ~Backpack();
-    int32_t add_item(int32_t id,int32_t num);
-    int32_t del_item(int32_t biid,int32_t num);
-    int32_t change_item(int32_t src_id,int32_t tar_id);
-    bool is_have(uint32_t biid);
-    void set_biid(int32_t _id){m_biid = _id;}
+    Backpack(/* args */){}
+    ~Backpack(){}
+    uint32_t add_item(std::map<std::string,std::string> resmp,uint32_t _typeid,int32_t num,int32_t& out);
+    int32_t del_item(int32_t uid,int32_t num);
+    int32_t merge_item(int32_t src_id,int32_t tar_id);
+    
+    std::shared_ptr<AbstractItem> get_item(uint32_t id);
+    int32_t set_item(std::shared_ptr<AbstractItem> ptr);
+    int32_t del_bat_item(uint32_t id);
 };
 
 

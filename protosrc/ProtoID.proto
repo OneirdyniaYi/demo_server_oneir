@@ -13,5 +13,9 @@ enum DEMOID
     STARTREQ               =   1000006;
     INITPOS                =   1000007;
     ITEMOPERAREQ           =   1000008;
-    ITEMOPERARSP           =   1000009;
+    ITEMOPERARSP           =   1000009;          
+    LOGINREQ               =   1000010;
+    LOGINRSP               =   1000011;
+    REGISTREQ              =   1000012;
+    REGISTRSP              =   1000013;
 }

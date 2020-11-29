@@ -105,8 +105,14 @@ int32_t Server::process_packet(const char *pszInCode, const int32_t iInCodeSize,
 
     printf("[network][Server::%s][uplayerid:%d][msg_id:%d]\n", __FUNCTION__, stHead.iPlayerID, stHead.iMsgID);
 	if(stHead.iPlayerID==0){
-		if(stHead.iMsgID==DEMOID::STARTREQ){
-			stHead.iPlayerID = curplayerid++;
+		if(stHead.iMsgID==DEMOID::REGISTREQ||stHead.iMsgID==DEMOID::LOGINREQ){
+			//stHead.iPlayerID = curplayerid;
+			// Player logplayer(stHead.iPlayerID);
+			// auto func = m_msgHandle->get_func(stHead.iMsgID);
+			// int ret = (logplayer.*func)(stHead,pszInCode + head_outLength,iBodySize);
+			// if(ret == Success) {
+			// 	curplayerid++;
+			// }
 			if(map_players.find(stHead.iPlayerID) == map_players.end()){
 				PlayerInfo pinfo;
 				pinfo.fd = socketfd;
@@ -118,10 +124,23 @@ int32_t Server::process_packet(const char *pszInCode, const int32_t iInCodeSize,
 			}
 			auto func = m_msgHandle->get_func(stHead.iMsgID);
 			if(NULL != func){
-				(map_players[stHead.iPlayerID].player->*func)(stHead,pszInCode + head_outLength,iBodySize);
+				printf("woshi yi zhi ya \n");
+				int ret = (map_players[stHead.iPlayerID].player->*func)(stHead,pszInCode + head_outLength,iBodySize);
+				printf("woshi liang zhi ya \n");
+				//printf("hui diao shi yong cheng gong ret is :%d\n",ret);
+				if(ret==Success&&stHead.iMsgID==DEMOID::REGISTREQ) 
+					curplayerid++;
+				delete map_players[stHead.iPlayerID].player;
+				printf("haiyou ma ma \n");
+				map_players.erase(stHead.iPlayerID);
+			}else
+			{
+				 return Failed;
 			}
-		}
-		return Failed;
+			
+			
+
+		}else return Failed;
 	}else{
 		if(map_players.find(stHead.iPlayerID) == map_players.end()){
 			PlayerInfo pinfo;
@@ -283,7 +302,7 @@ void Server::send_all_msg(int32_t PlayerID,int32_t cmd_id, google::protobuf::Mes
 	head.encode(data,codeLen);
 	msg.SerializePartialToArray(data+codeLen,msg.ByteSizeLong());
 	
-		printf("players number is %d\n",(int)m_mp.size());
+		printf("players number is %d\n",(int)map_players.size());
 	for(auto it = map_players.begin();it != map_players.end();it++){
 		printf("111111111111\n");
 		printf("send fd is %d\n",it->second.fd);
@@ -303,9 +322,10 @@ void Server::send_all_msg(int32_t PlayerID,int32_t cmd_id, google::protobuf::Mes
 		// 		printf("send all msg (id=%d) error ret=%d,errno:%d ,strerror:%s,fd = %d\n",cmd_id,ret,errno, strerror(errno),it->first);
 		// 	}
 		// 	printf("send all msg  fd:%d    msglen = %d\n",it->first,head.iLens);//head.iLens
-		// }
+		// } 
 		
 	}
+	//printf("caoni ma ge bi\n");
 }
 
 void Server::send_except_msg(int32_t PlayerID,int32_t cmd_id, google::protobuf::Message &msg){
@@ -352,6 +372,8 @@ void Server::register_all_msg(){
 	m_msgHandle->RegisterMsg(DEMOID::MOVEREQ, &Player::move_test);
 	m_msgHandle->RegisterMsg(DEMOID::STARTREQ, &Player::regis_test);
 	m_msgHandle->RegisterMsg(DEMOID::ITEMOPERAREQ, &Player::item_test);
+	m_msgHandle->RegisterMsg(DEMOID::REGISTREQ, &Player::regis_test1);
+	m_msgHandle->RegisterMsg(DEMOID::LOGINREQ, &Player::login_test);
 }
 
 }

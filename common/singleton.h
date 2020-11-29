@@ -11,7 +11,7 @@ template <typename T>
     class Singleton {
         public:
             static T& Instance() {
-                if (NULL == si_instance) {
+                if (nullptr == si_instance) {
                     si_instance = new T;
                 }
                 return *si_instance;
@@ -28,7 +28,7 @@ template <typename T>
     };
 
     template <typename T>
-    T* Singleton<T>::si_instance = NULL;
+    T* Singleton<T>::si_instance = nullptr;
 
 }
 #endif //DEMO_SINGLETON_H

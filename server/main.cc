@@ -4,8 +4,10 @@
 #include <cstdio>
 #include <map>
 
-#include "redisplus.h"
+
+
 #include "server.h"
+
 using namespace demo;
 
 int main(int argc, char** argv){
@@ -19,7 +21,7 @@ int main(int argc, char** argv){
 	q = argv[2];
     }
     REDIS.init("127.0.0.1",6379,200,0);
-    
+    MYSQLPP.init("127.0.0.1","root","123456","test");
     if(!DEMOSERVER.init(p,q)){
         DEMOSERVER.work();
     }

@@ -1,7 +1,7 @@
 
 
 #include "item.h"
-
+#include "redisplus.h"
 
 namespace demo{
 
@@ -85,28 +85,41 @@ int32_t ItemAttr::get_itemAttr(itemAttrKey key){
     }
 }
 
-std::shared_ptr<AbstractItem> ItemFactory::create(uint32_t id,int32_t num){
+std::shared_ptr<AbstractItem> ItemFactory::create(std::map<std::string,std::string> resmp,uint32_t id,int32_t num){
     switch (id)
     {
         case 1 ... 3:{
             auto ptr = std::make_shared<Money>(true);
-            ptr->init(id);
+            ptr->init(uid++);
+            ptr->set_itemType(id);
             //ptr->set_itemId(id);
+            ptr->set_itemBrief(resmp["brief"]);
             ptr->set_itemCount(num);
+            ptr->flagbit = 0xe0;
             return ptr;
             break;
         }
         case 4 ... 20:{
             auto ptr = std::make_shared<Item>(true);
-            ptr->init(id);
+            ptr->init(uid++);
+            ptr->set_itemType(id);
+            ptr->set_itemBrief(resmp["brief"]);
             ptr->set_itemCount(num);
+            ptr->set_itemAttr(hhh,HEALTH,std::stoi(resmp["hp"]));
+            ptr->set_itemAttr(hhh,ATTACK,std::stoi(resmp["atk"]));
+            ptr->set_itemAttr(hhh,ARMOR,std::stoi(resmp["def"]));
+            ptr->flagbit = 0x0;
             return ptr;
             break;
         }
         case 21 ... 100:{
             auto ptr = std::make_shared<Item>(false);
-            ptr->init(id);
+            ptr->init(uid++);
+            ptr->set_itemType(id);
+            ptr->set_itemBrief(resmp["brief"]);
             ptr->set_itemCount(num);
+            ptr->set_itemAttr(hhh,HEALTH,std::stoi(resmp["hp"]));
+            ptr->flagbit = 0xe0;
             return ptr;
             break;
 

@@ -43,6 +43,10 @@
         "utility": "cpp",
         "condition_variable": "cpp",
         "list": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "slist": "cpp",
+        "iomanip": "cpp",
+        "cfenv": "cpp",
+        "string": "cpp"
     }
 }

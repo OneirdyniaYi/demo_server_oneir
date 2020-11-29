@@ -19,14 +19,14 @@ private:
     /* data */
     uint32_t m_iid;
     //uint32_t m_biid;
-    int32_t m_itype;
+    uint32_t m_itype;
     int32_t m_iconfid;
     int32_t m_icount;
     bool m_isavenow;
     std::string m_ibrief;
 public:
     AbstractItem(bool _issave):m_iid(0),
-                               m_itype(-1),
+                               m_itype(0),
                                m_iconfid(-1),
                                m_icount(0),
                                m_isavenow(_issave)
@@ -38,8 +38,8 @@ public:
     char flagbit;// (1bit is tradable,2bit is bindable,3bit is overlyable,4bit is job bindable,last 4 bits job)
     void set_itemId(uint32_t _id) override {m_iid = _id;}
     uint32_t get_itemId() override{return m_iid;}
-    void set_itemType(int32_t _type) override {m_itype = _type;}
-    int32_t get_itemType() override {return m_itype;}
+    void set_itemType(uint32_t _type) override {m_itype = _type;}
+    uint32_t get_itemType() override {return m_itype;}
     // void set_itemAttr(itemModuleType _type,itemAttrKey key,int32_t _value) override{}
     // int32_t get_itemAttr(itemAttrKey _key) override{return -1;}
     void set_itemBrief(std::string _brief) override {m_ibrief = _brief;}
@@ -124,9 +124,12 @@ class ItemFactory : noncopyable
 {
 private:
     /* data */
+    uint32_t uid;
 public:
-    std::shared_ptr<AbstractItem> create(uint32_t id,int32_t num);
+    ItemFactory():uid(1){}
+    std::shared_ptr<AbstractItem> create(std::map<std::string,std::string> resmp,uint32_t id,int32_t num);
     void delitem(std::shared_ptr<AbstractItem> ptr);
+    void set_uid(uint32_t id);
 };
 
 
