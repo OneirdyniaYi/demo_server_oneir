@@ -24,6 +24,7 @@ private:
     int32_t m_icount;
     bool m_isavenow;
     std::string m_ibrief;
+    char flagbit;// (1bit is tradable,2bit is bindable,3bit is overlyable,4bit is job bindable,last 4 bits job)
 public:
     AbstractItem(bool _issave):m_iid(0),
                                m_itype(0),
@@ -35,7 +36,7 @@ public:
     }
     virtual ~AbstractItem(){}
 
-    char flagbit;// (1bit is tradable,2bit is bindable,3bit is overlyable,4bit is job bindable,last 4 bits job)
+    
     void set_itemId(uint32_t _id) override {m_iid = _id;}
     uint32_t get_itemId() override{return m_iid;}
     void set_itemType(uint32_t _type) override {m_itype = _type;}
@@ -47,6 +48,8 @@ public:
 
     void set_itemCount(int32_t _count) override {m_icount = _count;}
     int32_t get_itemCount() override {return m_icount;}
+    void set_bitflag(char _bit) override {flagbit = _bit;}
+    char get_bitflag() override {return flagbit;}
     virtual void init()=0;
 
 };
@@ -120,20 +123,6 @@ private:
 };
 
 
-class ItemFactory : noncopyable
-{
-private:
-    /* data */
-    uint32_t uid;
-public:
-    ItemFactory():uid(1){}
-    std::shared_ptr<AbstractItem> create(std::map<std::string,std::string> resmp,uint32_t id,int32_t num);
-    void delitem(std::shared_ptr<AbstractItem> ptr);
-    void set_uid(uint32_t id);
-};
-
-
-#define ITEMFAC Singleton<ItemFactory>::Instance()
 
 
 

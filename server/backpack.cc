@@ -89,7 +89,7 @@ int32_t Backpack::del_item(int32_t uid,int32_t num){
 }
 
 int32_t Backpack::merge_item(int32_t src_id,int32_t tar_id){
-    if(m_backpack[src_id]->get_itemId()==m_backpack[tar_id]->get_itemId()&&(m_backpack[src_id]->flagbit&0x20)!=0){
+    if(m_backpack[src_id]->get_itemId()==m_backpack[tar_id]->get_itemId()&&(m_backpack[src_id]->get_itemId()&0x20)!=0){
         m_backpack[tar_id]->set_itemCount(m_backpack[tar_id]->get_itemCount()+m_backpack[src_id]->get_itemCount());
         del_item(src_id,m_backpack[src_id]->get_itemCount());
     }else{
@@ -101,11 +101,11 @@ int32_t Backpack::merge_item(int32_t src_id,int32_t tar_id){
 
 
 
-std::shared_ptr<AbstractItem> Backpack::get_item(uint32_t id){
+std::shared_ptr<ItemInterface> Backpack::get_item(uint32_t id){
     return m_backpack[id];
 }
 
-int32_t Backpack::set_item(std::shared_ptr<AbstractItem> ptr){
+int32_t Backpack::set_item(std::shared_ptr<ItemInterface> ptr){
     m_backpack.insert(std::make_pair(ptr->get_itemId(),ptr));
     return Success;
 }

@@ -43,10 +43,25 @@ public:
     virtual void init()=0;
     virtual void set_itemCount(int32_t _count)=0;
     virtual int32_t get_itemCount()=0;
+    virtual void set_bitflag(char _bit)=0;
+    virtual char get_bitflag()=0;
 };
 
 
+class ItemFactory : noncopyable
+{
+private:
+    /* data */
+    uint32_t uid;
+public:
+    ItemFactory();
+    std::shared_ptr<ItemInterface> create(std::map<std::string,std::string> resmp,uint32_t id,int32_t num);
+    void delitem(std::shared_ptr<ItemInterface> ptr);
+    void set_uid(uint32_t id);
+};
 
+
+#define ITEMFAC Singleton<ItemFactory>::Instance()
 
 
 

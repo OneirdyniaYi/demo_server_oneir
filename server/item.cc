@@ -85,7 +85,11 @@ int32_t ItemAttr::get_itemAttr(itemAttrKey key){
     }
 }
 
-std::shared_ptr<AbstractItem> ItemFactory::create(std::map<std::string,std::string> resmp,uint32_t id,int32_t num){
+ItemFactory::ItemFactory(){
+    uid = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+}
+
+std::shared_ptr<ItemInterface> ItemFactory::create(std::map<std::string,std::string> resmp,uint32_t id,int32_t num){
     switch (id)
     {
         case 1 ... 3:{
@@ -95,7 +99,7 @@ std::shared_ptr<AbstractItem> ItemFactory::create(std::map<std::string,std::stri
             //ptr->set_itemId(id);
             ptr->set_itemBrief(resmp["brief"]);
             ptr->set_itemCount(num);
-            ptr->flagbit = 0xe0;
+            ptr->set_bitflag(0xe0);
             return ptr;
             break;
         }
@@ -108,7 +112,7 @@ std::shared_ptr<AbstractItem> ItemFactory::create(std::map<std::string,std::stri
             ptr->set_itemAttr(hhh,HEALTH,std::stoi(resmp["hp"]));
             ptr->set_itemAttr(hhh,ATTACK,std::stoi(resmp["atk"]));
             ptr->set_itemAttr(hhh,ARMOR,std::stoi(resmp["def"]));
-            ptr->flagbit = 0x0;
+            ptr->set_bitflag(0x0);
             return ptr;
             break;
         }
@@ -119,7 +123,7 @@ std::shared_ptr<AbstractItem> ItemFactory::create(std::map<std::string,std::stri
             ptr->set_itemBrief(resmp["brief"]);
             ptr->set_itemCount(num);
             ptr->set_itemAttr(hhh,HEALTH,std::stoi(resmp["hp"]));
-            ptr->flagbit = 0xe0;
+            ptr->set_bitflag(0xe0);
             return ptr;
             break;
 
@@ -131,7 +135,7 @@ std::shared_ptr<AbstractItem> ItemFactory::create(std::map<std::string,std::stri
     }
 }
 
-void ItemFactory::delitem(std::shared_ptr<AbstractItem> ptr){
+void ItemFactory::delitem(std::shared_ptr<ItemInterface> ptr){
     ptr.reset();
 }
 
