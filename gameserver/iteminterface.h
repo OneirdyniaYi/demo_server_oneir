@@ -55,9 +55,9 @@ private:
     uint32_t uid;
 public:
     ItemFactory();
-    std::shared_ptr<ItemInterface> create(std::map<std::string,std::string> resmp,uint32_t id,int32_t num);
+    std::shared_ptr<ItemInterface> create(std::map<std::string,std::string> resmp,uint32_t _typeid,int32_t num);
     void delitem(std::shared_ptr<ItemInterface> ptr);
-    void set_uid(uint32_t id);
+    //void set_uid(uint32_t id);
 };
 
 

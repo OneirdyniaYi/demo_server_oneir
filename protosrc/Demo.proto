@@ -40,8 +40,30 @@ message LoginReq{
 
 message LoginRsp{
     int32 issuc = 1;
-    uint32 playerid = 2;
-    int32 errorcode = 3;
+    int32 ip = 2;
+    uint32 port = 3;
+    int32 playerid = 4;
+    int32 sessionkey = 5;
+    int32 errorcode = 6;
+}
+
+message LoginGateReq{
+    int32 playerid = 4;
+    int32 sessionkey = 5;
+}
+
+message LoginNot{
+    int32 sessionkey = 1;
+    int64 time = 2;
+    int32 playerid = 3;
+}
+
+message InitReq{
+    int32 playerid = 1;
+}
+
+message InitDny{
+    int32 errorcode = 1;
 }
 
 message MoveReq{
@@ -110,4 +132,23 @@ message Item{
 message Itemattr{
     int32 attrkey = 1;
     int32 attrvalue = 2;
+}
+
+message GateHeart{
+    int32 gateid = 1;
+    int64 curtime = 2;
+    int32 loadnum = 3;
+}
+
+message ListenAddr{
+    uint32 ip = 1;
+    uint32 port = 2;
+}
+
+message CheckAgain{
+    string username = 1;
+    string password = 2;
+    int64 playerid = 3;
+    int32 ip = 4;
+    int32 port = 5;
 }

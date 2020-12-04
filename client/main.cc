@@ -1,4 +1,4 @@
-#include "client.h"
+#include "clientmoudle.h"
 using namespace demo;
 int main(int  argc,  char*  argv[]){
 	if (argc < 4){
@@ -7,9 +7,9 @@ int main(int  argc,  char*  argv[]){
     }
   
 
-
+/* 
     if(!demo::DEMOCLIENT.init(argv[1],argv[2],argv[3])) {
         demo::DEMOCLIENT.working();
-    }
+    } */
     return 0;
 }

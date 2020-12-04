@@ -98,12 +98,12 @@ int32_t Client::recv_msg() {
     
     for (int32_t i = 0; i < fd_num; ++i) {
         int32_t socketfd =  m_epoll->get_event_fd(i);
-	if(socketfd == m_socket->get_fd()){
-	printf("now socketfd is %d\n",socketfd);			
-	if(m_socket->freshBuf()){
-		printf("read to buffer error\n");
-		return Failed;
-	}
+        if(socketfd == m_socket->get_fd()){
+            printf("now socketfd is %d\n",socketfd);			
+            if(m_socket->freshBuf()){
+                printf("read to buffer error\n");
+                return Failed;
+            }
             m_socket->process_packet(std::bind(&Client::process_packet, this,std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
         }else{
             del_io_msg();
@@ -211,8 +211,8 @@ int32_t Client::handle_test2(MsgHead &stHead, const char *body, const int32_t le
 
 
 void Client::register_all_msg() {
-    m_msgHandle->RegisterMsg(DEMOID::RSP_TEST, &Client::handle_test);
-    m_msgHandle->RegisterMsg(DEMOID::RSP_TEST2, &Client::handle_test2);
+    //m_msgHandle->RegisterMsg(DEMOID::RSP_TEST, &Client::handle_test);
+    //m_msgHandle->RegisterMsg(DEMOID::RSP_TEST2, &Client::handle_test2);
 }
 
 

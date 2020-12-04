@@ -43,7 +43,9 @@ public:
 
 	int32_t process_packet(std::function<int32_t(const char *, const int32_t, int32_t)> callback);
 	
+	uint32_t get_ip() const {return m_ip.s_addr;}
 
+	uint16_t get_port() const {return m_port;}
 	//const char* toIpStr(const struct in_addr& ip);
 	//int32_t toIpAddr(const char* ipstr,struct in_addr& ip);
 

@@ -47,6 +47,8 @@
         "slist": "cpp",
         "iomanip": "cpp",
         "cfenv": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "thread": "cpp",
+        "memory": "cpp"
     }
 }

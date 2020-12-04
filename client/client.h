@@ -1,5 +1,5 @@
-#ifndef __CLIENT_H__
-#define __CLIENT_H__
+#ifndef __CLIENT_MOUDLE_H__
+#define __CLIENT_MOUDLE_H__
 
 #include <cstdint>
 #include <unordered_map>
@@ -56,7 +56,7 @@ private:
     int32_t process_packet(const char *pszInCode, const int32_t iInCodeSize,int32_t socketfd);
 
 };
-#define DEMOCLIENT Singleton<Client>::Instance()
+//#define DEMOCLIENT Singleton<Client>::Instance()
 
 }
 #endif

@@ -89,13 +89,13 @@ ItemFactory::ItemFactory(){
     uid = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
-std::shared_ptr<ItemInterface> ItemFactory::create(std::map<std::string,std::string> resmp,uint32_t id,int32_t num){
-    switch (id)
+std::shared_ptr<ItemInterface> ItemFactory::create(std::map<std::string,std::string> resmp,uint32_t _typeid,int32_t num){
+    switch (_typeid)
     {
         case 1 ... 3:{
             auto ptr = std::make_shared<Money>(true);
             ptr->init(uid++);
-            ptr->set_itemType(id);
+            ptr->set_itemType(_typeid);
             //ptr->set_itemId(id);
             ptr->set_itemBrief(resmp["brief"]);
             ptr->set_itemCount(num);
@@ -106,7 +106,7 @@ std::shared_ptr<ItemInterface> ItemFactory::create(std::map<std::string,std::str
         case 4 ... 20:{
             auto ptr = std::make_shared<Item>(true);
             ptr->init(uid++);
-            ptr->set_itemType(id);
+            ptr->set_itemType(_typeid);
             ptr->set_itemBrief(resmp["brief"]);
             ptr->set_itemCount(num);
             ptr->set_itemAttr(hhh,HEALTH,std::stoi(resmp["hp"]));
@@ -119,7 +119,7 @@ std::shared_ptr<ItemInterface> ItemFactory::create(std::map<std::string,std::str
         case 21 ... 100:{
             auto ptr = std::make_shared<Item>(false);
             ptr->init(uid++);
-            ptr->set_itemType(id);
+            ptr->set_itemType(_typeid);
             ptr->set_itemBrief(resmp["brief"]);
             ptr->set_itemCount(num);
             ptr->set_itemAttr(hhh,HEALTH,std::stoi(resmp["hp"]));

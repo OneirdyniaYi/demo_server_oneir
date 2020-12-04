@@ -190,7 +190,6 @@ int32_t Socket::process_packet(std::function<int32_t(const char *, const int32_t
 
 
 
-
 int32_t Socket::set_nonblock(int32_t fd){
   	// non-block
   	int32_t flags = ::fcntl(fd, F_GETFL, 0);

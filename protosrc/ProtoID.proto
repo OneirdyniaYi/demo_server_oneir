@@ -18,4 +18,9 @@ enum DEMOID
     LOGINRSP               =   1000011;
     REGISTREQ              =   1000012;
     REGISTRSP              =   1000013;
+    GATEHEART              =   1000014;
+    LOGINNOT               =   1000015;
+    GATELISTENADDR         =   1000016;
+    LOGINGATEREQ           =   1000017;
+    INITDNY                =   1000018;
 }
